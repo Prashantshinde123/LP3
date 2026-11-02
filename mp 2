@@ -1,1 +1,61 @@
 
+import heapq
+
+class Node:
+    def __init__(self, char, freq):
+        self.char = char
+        self.freq = freq
+        self.left = None
+        self.right = None
+
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+
+def huffman_encoding(text):
+    freq = {}
+
+    for char in text:
+        freq[char] = freq.get(char, 0) + 1
+
+    heap = []
+
+    for char, frequency in freq.items():
+        heapq.heappush(heap, Node(char, frequency))
+
+    while len(heap) > 1:
+        left = heapq.heappop(heap)
+        right = heapq.heappop(heap)
+
+        new_node = Node(None, left.freq + right.freq)
+        new_node.left = left
+        new_node.right = right
+
+        heapq.heappush(heap, new_node)
+
+    codes = {}
+
+    def generate_codes(node, code=""):
+        if node is None:
+            return
+
+        if node.char is not None:
+            codes[node.char] = code if code else "0"
+            return
+
+        generate_codes(node.left, code + "0")
+        generate_codes(node.right, code + "1")
+
+    generate_codes(heap[0])
+
+    print("Huffman Codes:")
+    for char, code in codes.items():
+        print(char, ":", code)
+
+    encoded = "".join(codes[char] for char in text)
+    print("Encoded Text:", encoded)
+
+
+text = input("Enter text: ")
+huffman_encoding(text)
+
